@@ -300,7 +300,11 @@ def ist_date_filter(dt):
     # Now we just format the existing time
     return dt.strftime('%d %b %Y, %I:%M %p')
 
+# --- AUTO-CREATE TABLES (Fixed for Cloud) ---
+with app.app_context():
+    db.create_all()
+    print("Database Tables Created Successfully!")
+
+# --- START THE APP ---
 if __name__ == '__main__':
-    with app.app_context():
-        db.create_all()
     app.run(debug=True)
