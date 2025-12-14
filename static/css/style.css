@@ -1,0 +1,85 @@
+/* Natural Farming Theme Palette */
+:root {
+    --earth-green: #2d6a4f;  /* Deep Forest Green */
+    --leaf-green: #52b788;   /* Fresh Crop Green */
+    --soil-brown: #6f4e37;   /* Rich Soil */
+    --sand-beige: #f4f1de;   /* Background Color */
+    --text-dark: #1b4332;
+}
+
+body {
+    background-color: var(--sand-beige);
+    color: var(--text-dark);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* --- Card Styling (Modern Glassmorphism effect) --- */
+.card {
+    border: none;
+    border-radius: 15px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1); /* Soft shadow */
+    transition: transform 0.2s;
+}
+
+.card:hover {
+    transform: translateY(-5px); /* Lift effect on hover */
+}
+
+/* --- Buttons --- */
+.btn-primary {
+    background-color: var(--earth-green);
+    border: none;
+    padding: 10px 20px;
+    border-radius: 25px; /* Pill shape */
+}
+
+.btn-primary:hover {
+    background-color: var(--leaf-green);
+}
+
+/* --- Navbar --- */
+.navbar {
+    background-color: var(--earth-green) !important;
+}
+
+.navbar-brand {
+    font-weight: bold;
+    color: white !important;
+}
+
+.nav-link {
+    color: rgba(255,255,255,0.8) !important;
+}
+
+/* --- Soil Selection Radio Buttons (Visual) --- */
+/* Hides the default ugly circle button */
+.soil-option input[type="radio"] {
+    display: none;
+}
+
+/* The label acts as the button */
+.soil-option label {
+    display: block;
+    padding: 15px;
+    border: 2px solid transparent;
+    border-radius: 10px;
+    cursor: pointer;
+    text-align: center;
+    background: white;
+}
+
+/* Highlight when selected */
+.soil-option input[type="radio"]:checked + label {
+    border-color: var(--earth-green);
+    background-color: #d8f3dc;
+    font-weight: bold;
+}
+
+/* Color Circles for Soil */
+.dot {
+    height: 40px;
+    width: 40px;
+    border-radius: 50%;
+    display: inline-block;
+    margin-bottom: 10px;
+}

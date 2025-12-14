@@ -1,0 +1,101 @@
+
+  /* Page Background */
+  body {
+    background-color: #f8f9fa; /* Light Gray for contrast */
+  }
+
+  /* Section Cards */
+  .section-card {
+    background: #ffffff;
+    border-radius: 16px; /* Modern rounded corners */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    transition: transform 0.2s;
+  }
+  
+  /* Input Fields */
+  .form-control, .form-select {
+    border-radius: 10px;
+    padding: 12px;
+    border: 1px solid #ced4da;
+  }
+  .form-control:focus, .form-select:focus {
+    border-color: #198754;
+    box-shadow: 0 0 0 0.25rem rgba(25, 135, 84, 0.25);
+  }
+
+  /* Interactive Radio Cards (Terrain/Soil) */
+  .btn-check:checked + .btn-outline-success,
+  .btn-check:checked + .btn-outline-primary,
+  .btn-check:checked + .btn-outline-secondary {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    font-weight: bold;
+  }
+
+  /* Soil Cards specific styling */
+  .soil-card {
+    cursor: pointer;
+    border: 2px solid #eee;
+    border-radius: 12px;
+    padding: 15px;
+    background: #fff;
+    transition: all 0.3s ease;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+  }
+  .soil-input:checked + .soil-card {
+    border-color: #198754;
+    background-color: #f0fff4;
+    transform: translateY(-5px);
+    box-shadow: 0 8px 15px rgba(25, 135, 84, 0.2);
+  }
+  .soil-card:hover {
+    border-color: #198754;
+  }
+  .icon-box {
+    width: 50px;
+    height: 50px;
+    line-height: 50px;
+    border-radius: 50%;
+    margin-bottom: 10px;
+    font-size: 20px;
+    color: white;
+  }
+  
+  /* Soil Colors */
+  .bg-black-soil { background-color: #212529; }
+  .bg-red-soil { background-color: #d63384; }
+  .bg-clay-soil { background-color: #a68a64; }
+  .bg-sandy-soil { background-color: #fd7e14; }
+
+  /* Voice Assistant Floating Widget */
+  .voice-assistant-container {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 1050; /* Above everything */
+    max-width: 90%; /* For small screens */
+  }
+  
+  /* Pulse Animation for Mic */
+  .listening {
+    background-color: #dc3545 !important;
+    color: white !important;
+    box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.7);
+    animation: pulse-red 1.5s infinite;
+  }
+  @keyframes pulse-red {
+    0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.7); }
+    70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(220, 53, 69, 0); }
+    100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(220, 53, 69, 0); }
+  }
+  
+  /* Make room at bottom for widget on mobile */
+  .main-wrapper {
+    padding-bottom: 100px;
+  }

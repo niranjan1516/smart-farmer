@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="row justify-content-center mt-5">
+    <div class="col-md-5">
+        <div class="card p-4 shadow-sm border-info">
+            <div class="text-center">
+                <h3><i class="fas fa-shield-alt text-info"></i> Verify Mobile</h3>
+                <p>We sent an OTP to your phone.</p>
+            </div>
+            
+            <form method="POST">
+                <div class="mb-3">
+                    <input type="text" name="otp" class="form-control text-center text-primary fw-bold" 
+                           placeholder="Enter 4-digit OTP" maxlength="4" style="font-size: 24px;" required>
+                </div>
+                <div class="d-grid">
+                    <button type="submit" class="btn btn-info text-white">Verify & Create Account</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,659 @@
+{% extends "base.html" %} 
+{% block content %}
+
+<style>
+  /* Page Background */
+  body {
+    background-color: #f8f9fa; /* Light Gray for contrast */
+  }
+
+  /* Section Cards */
+  .section-card {
+    background: #ffffff;
+    border-radius: 16px; /* Modern rounded corners */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    transition: transform 0.2s;
+  }
+  
+  /* Input Fields */
+  .form-control, .form-select {
+    border-radius: 10px;
+    padding: 12px;
+    border: 1px solid #ced4da;
+  }
+  .form-control:focus, .form-select:focus {
+    border-color: #198754;
+    box-shadow: 0 0 0 0.25rem rgba(25, 135, 84, 0.25);
+  }
+
+  /* Interactive Radio Cards (Terrain/Soil) */
+  .btn-check:checked + .btn-outline-success,
+  .btn-check:checked + .btn-outline-primary,
+  .btn-check:checked + .btn-outline-secondary {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    font-weight: bold;
+  }
+
+  /* Soil Cards specific styling */
+  .soil-card {
+    cursor: pointer;
+    border: 2px solid #eee;
+    border-radius: 12px;
+    padding: 15px;
+    background: #fff;
+    transition: all 0.3s ease;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+  }
+  .soil-input:checked + .soil-card {
+    border-color: #198754;
+    background-color: #f0fff4;
+    transform: translateY(-5px);
+    box-shadow: 0 8px 15px rgba(25, 135, 84, 0.2);
+  }
+  .soil-card:hover {
+    border-color: #198754;
+  }
+  .icon-box {
+    width: 50px;
+    height: 50px;
+    line-height: 50px;
+    border-radius: 50%;
+    margin-bottom: 10px;
+    font-size: 20px;
+    color: white;
+  }
+  
+  /* Soil Colors */
+  .bg-black-soil { background-color: #212529; }
+  .bg-red-soil { background-color: #d63384; }
+  .bg-clay-soil { background-color: #a68a64; }
+  .bg-sandy-soil { background-color: #fd7e14; }
+
+  /* Voice Assistant Floating Widget */
+  .voice-assistant-container {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 1050; /* Above everything */
+    max-width: 90%; /* For small screens */
+  }
+  
+  /* Pulse Animation for Mic */
+  .listening {
+    background-color: #dc3545 !important;
+    color: white !important;
+    box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.7);
+    animation: pulse-red 1.5s infinite;
+  }
+  @keyframes pulse-red {
+    0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.7); }
+    70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(220, 53, 69, 0); }
+    100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(220, 53, 69, 0); }
+  }
+  
+  /* Make room at bottom for widget on mobile */
+  .main-wrapper {
+    padding-bottom: 100px;
+  }
+
+  /* ... existing styles ... */
+
+  .voice-assistant-container {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 1050;
+  }
+
+  /* --- NEW: MOBILE SPECIFIC POSITIONING --- */
+  @media (max-width: 768px) {
+    .voice-assistant-container {
+      bottom: auto;   /* Remove bottom alignment */
+      top: 100px;      /* 100px from top (below the header) */
+      right: 10px;    /* 10px from right */
+      
+      /* Optional: Make it slightly smaller on mobile so it blocks less */
+      transform: scale(0.9); 
+      transform-origin: top right;
+    }
+    
+    /* Ensure the card isn't too wide on small screens */
+    .voice-assistant-container .card {
+        width: 260px !important;
+    }
+  }
+
+  /* Default Desktop Floating Position */
+  .voice-assistant-container {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 2000;
+    transition: all 0.3s ease-in-out;
+  }
+
+  /* MOBILE SPECIFIC STYLES */
+  @media (max-width: 992px) {
+    /* 1. Hide by default on mobile */
+    .voice-assistant-container {
+      display: none; 
+      bottom: 50%;
+      right: 50%;
+      transform: translate(50%, 50%); /* Center it */
+      width: 90%; /* Make it wide */
+    }
+
+    /* 2. Show when active (Class added by JS) */
+    .voice-assistant-container.active {
+      display: block;
+      animation: popIn 0.3s ease;
+    }
+    
+    /* 3. Add a dark backdrop */
+    .voice-backdrop {
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.6);
+      z-index: 1999;
+      display: none;
+      backdrop-filter: blur(3px);
+    }
+    .voice-backdrop.active {
+      display: block;
+    }
+  }
+
+  @keyframes popIn {
+    from { opacity: 0; transform: translate(50%, 60%); }
+    to { opacity: 1; transform: translate(50%, 50%); }
+  }
+
+ /* Mobile Voice Button - Left Side */
+  .mobile-voice-btn {
+    position: fixed !important;
+    top: 75px !important;
+    
+    /* We let Bootstrap handles the Left/Right positioning now, 
+       but we ensure 'right' is unset to avoid conflicts */
+    right: auto !important; 
+    
+    width: 55px;
+    height: 55px;
+    z-index: 9999;
+    
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+    background-color: #198754;
+    color: white;
+    border: 3px solid white;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+  }
+  .mobile-voice-btn:active {
+    transform: scale(0.95);
+  }
+</style>
+
+<button class="btn btn-success rounded-circle shadow d-lg-none mobile-voice-btn " 
+        onclick="toggleMobileVoice()">
+    <i class="fas fa-microphone"></i>
+</button>
+
+<div class="container main-wrapper">
+  <div class="row justify-content-center">
+    <div class="col-lg-10 col-xl-9">
+      
+      <div class="text-center mb-5 mt-4">
+        <h2 class="fw-bold text-dark display-6" data-i18n="title">Crop Advisor</h2>
+        <p class="text-muted lead" data-i18n="subtitle">Answer 3 simple questions to get a scientific recommendation.</p>
+      </div>
+
+      <div class="card shadow-lg border-0 rounded-4 overflow-hidden">
+        <div class="bg-light px-4 py-3 border-bottom d-flex justify-content-between align-items-center">
+          <span class="fw-bold text-success"><i class="fas fa-leaf me-2"></i>Smart Kisan</span>
+          <div class="d-flex align-items-center">
+            <label class="me-2 fw-bold small text-muted text-uppercase">Language:</label>
+            <select id="siteLang" class="form-select form-select-sm w-auto shadow-none border-success" onchange="changeLanguage(this.value)">
+              <option value="en">English</option>
+              <option value="hi">Hindi (हिंदी)</option>
+              <option value="mr">Marathi (मराठी)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="p-4 p-md-5">
+          <form action="{{ url_for('predict') }}" method="POST">
+            
+            <div class="section-card p-4 mb-4">
+              <div class="d-flex align-items-center mb-3">
+                <div class="bg-success text-white rounded-circle d-flex align-items-center justify-content-center me-2" style="width: 32px; height: 32px;">1</div>
+                <h5 class="text-success mb-0 fw-bold" data-i18n="lbl_loc">Location Details</h5>
+              </div>
+              
+              <div class="row g-3">
+                <div class="col-12 col-md-4">
+                  <label class="form-label fw-bold text-muted small text-uppercase" data-i18n="lbl_dist">District</label>
+                  <select name="district" id="district" class="form-select" onchange="loadVillages()" required>
+                    <option value="" selected disabled>Select District</option>
+                  </select>
+                </div>
+
+                <div class="col-12 col-md-4">
+                  <label class="form-label fw-bold text-muted small text-uppercase" data-i18n="lbl_vil">Village Name</label>
+                  <select name="village" id="village" class="form-select" disabled required>
+                    <option value="" selected disabled>Select Village</option>
+                  </select>
+                </div>
+
+                <div class="col-12 col-md-4">
+                  <label class="form-label fw-bold text-muted small text-uppercase" data-i18n="lbl_pin">Pincode</label>
+                  <input type="text" name="pincode" id="pincode" class="form-control" placeholder="e.g. 411001" maxlength="6" required />
+                </div>
+              </div>
+            </div>
+
+            <div class="section-card p-4 mb-4">
+                <div class="d-flex align-items-center mb-3">
+                    <div class="bg-success text-white rounded-circle d-flex align-items-center justify-content-center me-2" style="width: 32px; height: 32px;">2</div>
+                    <h5 class="text-success mb-0 fw-bold" data-i18n="lbl_env">Farm Environment</h5>
+                </div>
+                <label class="form-label mb-3 d-block text-muted" data-i18n="lbl_where">Where is the farm situated?</label>
+                
+                <div class="row g-3">
+                  <div class="col-12 col-md-4">
+                    <input type="radio" name="terrain" id="t_plain" value="plain" checked class="btn-check" />
+                    <label class="btn btn-outline-success w-100 py-3 rounded-3 h-100 d-flex flex-column align-items-center justify-content-center" for="t_plain">
+                      <i class="fas fa-layer-group fa-2x mb-2"></i>
+                      <span data-i18n="opt_plain" class="fw-bold">Plain Field</span>
+                    </label>
+                  </div>
+                  <div class="col-12 col-md-4">
+                    <input type="radio" name="terrain" id="t_river" value="river" class="btn-check" />
+                    <label class="btn btn-outline-primary w-100 py-3 rounded-3 h-100 d-flex flex-column align-items-center justify-content-center" for="t_river">
+                      <i class="fas fa-water fa-2x mb-2"></i>
+                      <span data-i18n="opt_river" class="fw-bold">Near River</span>
+                    </label>
+                  </div>
+                  <div class="col-12 col-md-4">
+                    <input type="radio" name="terrain" id="t_mountain" value="mountain" class="btn-check" />
+                    <label class="btn btn-outline-secondary w-100 py-3 rounded-3 h-100 d-flex flex-column align-items-center justify-content-center" for="t_mountain">
+                      <i class="fas fa-mountain fa-2x mb-2"></i>
+                      <span data-i18n="opt_hill" class="fw-bold">Hill / Mountain</span>
+                    </label>
+                  </div>
+                </div>
+            </div>
+
+            <div class="section-card p-4 mb-4">
+                <div class="d-flex align-items-center mb-3">
+                    <div class="bg-success text-white rounded-circle d-flex align-items-center justify-content-center me-2" style="width: 32px; height: 32px;">3</div>
+                    <h5 class="text-success mb-0 fw-bold" data-i18n="lbl_soil">Select Soil Type</h5>
+                </div>
+                
+                <div class="row g-3">
+                  <div class="col-6 col-md-3">
+                    <input type="radio" name="soil_color" id="soil_black" value="black" checked class="soil-input" />
+                    <label for="soil_black" class="soil-card">
+                      <div class="icon-box bg-black-soil"><i class="fas fa-seedling"></i></div>
+                      <h6 class="mb-0 fw-bold" data-i18n="soil_black">Black Soil</h6>
+                    </label>
+                  </div>
+
+                  <div class="col-6 col-md-3">
+                    <input type="radio" name="soil_color" id="soil_red" value="red" class="soil-input" />
+                    <label for="soil_red" class="soil-card">
+                      <div class="icon-box bg-red-soil"><i class="fas fa-fire-alt"></i></div>
+                      <h6 class="mb-0 fw-bold" data-i18n="soil_red">Red Soil</h6>
+                    </label>
+                  </div>
+
+                  <div class="col-6 col-md-3">
+                    <input type="radio" name="soil_color" id="soil_clay" value="clay" class="soil-input" />
+                    <label for="soil_clay" class="soil-card">
+                      <div class="icon-box bg-clay-soil"><i class="fas fa-cube"></i></div>
+                      <h6 class="mb-0 fw-bold" data-i18n="soil_clay">Clay Soil</h6>
+                    </label>
+                  </div>
+
+                  <div class="col-6 col-md-3">
+                    <input type="radio" name="soil_color" id="soil_sandy" value="sandy" class="soil-input" />
+                    <label for="soil_sandy" class="soil-card">
+                      <div class="icon-box bg-sandy-soil"><i class="fas fa-sun"></i></div>
+                      <h6 class="mb-0 fw-bold" data-i18n="soil_sandy">Sandy Soil</h6>
+                    </label>
+                  </div>
+                </div>
+            </div>
+
+            <div class="card border-0 mb-4" style="background-color: #fff8e1; border-left: 5px solid #ffc107 !important;">
+              <div class="card-body p-4">
+                <h6 class="mb-2 fw-bold text-dark" data-i18n="lbl_npk"><i class="fas fa-flask me-2 text-warning"></i> Do you have soil test values? (Optional)</h6>
+                <p class="text-muted small mb-3">If you enter these, prediction will be more accurate.</p>
+                
+                <div class="row g-3">
+                  <div class="col-6 col-md-3">
+                    <input type="number" name="N" class="form-control" placeholder="N (Nitrogen)" />
+                  </div>
+                  <div class="col-6 col-md-3">
+                    <input type="number" name="P" class="form-control" placeholder="P (Phosphorus)" />
+                  </div>
+                  <div class="col-6 col-md-3">
+                    <input type="number" name="K" class="form-control" placeholder="K (Potassium)" />
+                  </div>
+                  <div class="col-6 col-md-3">
+                    <input type="number" step="0.1" name="ph" class="form-control" placeholder="pH Level" />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="d-grid mt-5">
+              <button type="submit" class="btn btn-success btn-lg py-3 rounded-pill shadow fw-bold text-uppercase" style="letter-spacing: 1px;" data-i18n="btn_predict"
+              onclick="localStorage.setItem('appLang', document.getElementById('siteLang').value)">
+                <i class="fas fa-check-circle me-2"></i> Predict Best Crop
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="voice-backdrop" onclick="toggleMobileVoice()"></div>
+<div class="voice-assistant-container">
+  <div class="card shadow-lg border-0 rounded-4 overflow-hidden" style="width: 320px;">
+    <div class="card-header bg-success text-white d-flex justify-content-between align-items-center py-3">
+      <span class="fw-bold"><i class="fas fa-robot me-2"></i>Shetkari Mitra</span>
+      <select id="voiceLang" class="form-select form-select-sm border-0 text-dark" style="width: 110px; font-size: 0.8rem;">
+        <option value="en-US">English</option>
+        <option value="hi-IN">Hindi</option>
+        <option value="mr-IN">Marathi</option>
+      </select>
+    </div>
+    
+    <div class="card-body text-center bg-white p-4">
+      <div id="statusMsg" class="badge bg-light text-dark mb-3 px-3 py-2 fw-normal border">Tap mic to ask about weather</div>
+
+      <button id="micBtn" class="btn btn-outline-success rounded-circle d-flex align-items-center justify-content-center mx-auto mb-4 transition-all" style="width: 70px; height: 70px; border-width: 2px;">
+        <i class="fas fa-microphone fa-2x"></i>
+      </button>
+
+      <div id="chatResponse" class="card bg-light border-0 p-3 text-start d-none rounded-3 shadow-inner">
+        <p class="mb-1 small text-muted text-uppercase fw-bold">You:</p>
+        <p class="mb-2 text-dark" id="userQuery">...</p>
+        <hr class="my-2">
+        <p class="mb-1 small text-muted text-uppercase fw-bold text-success">Mitra:</p>
+        <p class="mb-0 fw-bold text-dark" id="botReply">...</p>
+      </div>
+
+      <audio id="assistantPlayer" controls style="display: none"></audio>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ==========================================
+  // 1. LOCATION DATA & LOGIC
+  // ==========================================
+  const locationData = {
+    Pune: {
+      label: "Pune (पुणे)",
+      villages: [
+        { val: "Haveli", label: "Haveli (हवेली)" },
+        { val: "Mulshi", label: "Mulshi (मुळशी)" },
+        { val: "Baramati", label: "Baramati (बारामती)" },
+        { val: "Khed", label: "Khed (खेड)" },
+        { val: "Maval", label: "Maval (मावळ)" },
+        { val: "Indapur", label: "Indapur (इंदापूर)" },
+      ],
+    },
+    Nashik: {
+      label: "Nashik (नाशिक)",
+      villages: [
+        { val: "Sinnar", label: "Sinnar (सिन्नर)" },
+        { val: "Malegaon", label: "Malegaon (मालेगाव)" },
+        { val: "Niphad", label: "Niphad (निफाड)" },
+        { val: "Yeola", label: "Yeola (येवला)" },
+        { val: "Trimbak", label: "Trimbak (त्र्यंबक)" },
+      ],
+    },
+    Nagpur: {
+      label: "Nagpur (नागपूर)",
+      villages: [
+        { val: "Ramtek", label: "Ramtek (रामटेक)" },
+        { val: "Umred", label: "Umred (उमरेड)" },
+        { val: "Kamptee", label: "Kamptee (कामठी)" },
+        { val: "Hingna", label: "Hingna (हिंगणा)" },
+        { val: "Saoner", label: "Saoner (सावनेर)" },
+      ],
+    },
+    Kolhapur: {
+      label: "Kolhapur (कोल्हापूर)",
+      villages: [
+        { val: "Karveer", label: "Karveer (करवीर)" },
+        { val: "Panhala", label: "Panhala (पन्हाळा)" },
+        { val: "Shahuwadi", label: "Shahuwadi (शाहूवाडी)" },
+        { val: "Kagal", label: "Kagal (कागल)" },
+        { val: "Hatkanangale", label: "Hatkanangale (हातकणंगले)" },
+      ],
+    },
+    Aurangabad: {
+      label: "Aurangabad (औरंगाबाद)",
+      villages: [
+        { val: "Paithan", label: "Paithan (पैठण)" },
+        { val: "Gangapur", label: "Gangapur (गंगापूर)" },
+        { val: "Vaijapur", label: "Vaijapur (वैजापूर)" },
+        { val: "Kannad", label: "Kannad (कन्नड)" },
+      ],
+    },
+  };
+
+  function loadVillages() {
+    const districtSelect = document.getElementById("district");
+    const villageSelect = document.getElementById("village");
+    const selectedDistrict = districtSelect.value;
+
+    villageSelect.innerHTML = '<option value="" selected disabled>Select Village (निवडा)</option>';
+
+    if (locationData[selectedDistrict]) {
+      villageSelect.disabled = false;
+      locationData[selectedDistrict].villages.forEach((v) => {
+        const option = document.createElement("option");
+        option.value = v.val;
+        option.text = v.label;
+        villageSelect.add(option);
+      });
+    } else {
+      villageSelect.disabled = true;
+    }
+  }
+
+  // ==========================================
+  // 2. VOICE ASSISTANT LOGIC
+  // ==========================================
+  document.addEventListener("DOMContentLoaded", function () {
+    // Populate Districts
+    const districtSelect = document.getElementById("district");
+    for (const [key, data] of Object.entries(locationData)) {
+      const option = document.createElement("option");
+      option.value = key;
+      option.text = data.label;
+      districtSelect.add(option);
+    }
+    const otherOpt = document.createElement("option");
+    otherOpt.value = "Other";
+    otherOpt.text = "Other (इतर / अन्य)";
+    districtSelect.add(otherOpt);
+
+
+    // Voice Logic
+    const micBtn = document.getElementById("micBtn");
+    const statusMsg = document.getElementById("statusMsg");
+    const assistantPlayer = document.getElementById("assistantPlayer");
+    const chatResponse = document.getElementById("chatResponse");
+    const userQuerySpan = document.getElementById("userQuery");
+    const botReplySpan = document.getElementById("botReply");
+    const voiceLang = document.getElementById("voiceLang");
+
+    if (!micBtn) return;
+
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+    if (SpeechRecognition) {
+      const recognition = new SpeechRecognition();
+      recognition.continuous = false;
+
+      micBtn.addEventListener("click", () => {
+        recognition.lang = voiceLang.value;
+        try { recognition.start(); } catch (e) { console.error(e); }
+      });
+
+      recognition.onstart = () => {
+        micBtn.classList.add("listening");
+        statusMsg.innerText = "Listening...";
+        statusMsg.classList.add("bg-danger", "text-white");
+        statusMsg.classList.remove("bg-light", "text-dark");
+      };
+
+      recognition.onend = () => {
+        micBtn.classList.remove("listening");
+        statusMsg.innerText = "Processing...";
+        statusMsg.classList.remove("bg-danger", "text-white");
+        statusMsg.classList.add("bg-light", "text-dark");
+      };
+
+      recognition.onresult = (event) => {
+        const transcript = event.results[0][0].transcript;
+        userQuerySpan.innerText = transcript;
+        chatResponse.classList.remove("d-none");
+        sendToAgent(transcript, voiceLang.value);
+      };
+    } else {
+      statusMsg.innerText = "Browser Not Supported";
+      micBtn.disabled = true;
+    }
+
+    function sendToAgent(text, fullLangCode) {
+      const simpleLang = fullLangCode.split("-")[0];
+      const districtEl = document.getElementById("district");
+      const selectedDistrict = districtEl ? districtEl.value : "not selected";
+
+      fetch("/ask_agent", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text: text, language: simpleLang, district: selectedDistrict }),
+      })
+      .then((response) => response.json())
+      .then((data) => {
+        botReplySpan.innerText = data.answer;
+        statusMsg.innerText = "Tap mic to reply";
+        assistantPlayer.src = data.audio_url;
+        assistantPlayer.play();
+      })
+      .catch((error) => {
+        statusMsg.innerText = "Connection Error";
+      });
+    }
+  });
+
+  // ==========================================
+  // 3. TRANSLATIONS
+  // ==========================================
+  const translations = {
+    en: {
+      title: "Crop Advisor",
+      subtitle: "Answer 2 simple questions to get a scientific recommendation.",
+      lbl_loc: "Location Details",
+      lbl_dist: "District",
+      lbl_vil: "Village Name",
+      lbl_pin: "Pincode",
+      lbl_env: "Farm Environment",
+      lbl_where: "Where is the farm situated?",
+      opt_plain: "Plain Field",
+      opt_river: "Near River",
+      opt_hill: "Hill / Mountain",
+      lbl_soil: "Select Soil Type",
+      soil_black: "Black Soil",
+      soil_red: "Red Soil",
+      soil_clay: "Clay Soil",
+      soil_sandy: "Sandy Soil",
+      lbl_npk: "Do you have soil test values?",
+      btn_predict: "Predict Best Crop",
+    },
+    hi: {
+      title: "फसल सलाहकार",
+      subtitle: "वैज्ञानिक सलाह पाने के लिए 2 सरल प्रश्नों के उत्तर दें.",
+      lbl_loc: "स्थान विवरण",
+      lbl_dist: "जिला",
+      lbl_vil: "गांव का नाम",
+      lbl_pin: "पिनकोड",
+      lbl_env: "खेत का वातावरण",
+      lbl_where: "खेत कहां स्थित है?",
+      opt_plain: "समतल",
+      opt_river: "नदी के पास",
+      opt_hill: "पहाड़",
+      lbl_soil: "मिट्टी का प्रकार",
+      soil_black: "काली मिट्टी",
+      soil_red: "लाल मिट्टी",
+      soil_clay: "चिकनी मिट्टी",
+      soil_sandy: "रेतीली मिट्टी",
+      lbl_npk: "क्या आपके पास मृदा परीक्षण मान हैं?",
+      btn_predict: "सर्वश्रेष्ठ फसल बताएं",
+    },
+    mr: {
+      title: "पीक सल्लागार",
+      subtitle: "शास्त्रीय सल्ला मिळवण्यासाठी 2 सोपे प्रश्न सोडवा.",
+      lbl_loc: "ठिकाणाचे विवरण",
+      lbl_dist: "जिल्हा",
+      lbl_vil: "गावाचे नाव",
+      lbl_pin: "पिनकोड",
+      lbl_env: "शेताचे वातावरण",
+      lbl_where: "शेत कुठे आहे?",
+      opt_plain: "सपाट",
+      opt_river: "नदीकाठी",
+      opt_hill: "डोंगर",
+      lbl_soil: "मातीचा प्रकार",
+      soil_black: "काळी माती",
+      soil_red: "तांबडी माती",
+      soil_clay: "चिकण माती",
+      soil_sandy: "रेताड माती",
+      lbl_npk: "तुमच्या कडे माती परीक्षण आहे का?",
+      btn_predict: "सर्वोत्तम पीक सांगा",
+    },
+  };
+
+  function changeLanguage(lang) {
+    document.querySelectorAll("[data-i18n]").forEach((element) => {
+      const key = element.getAttribute("data-i18n");
+      const englishText = translations["en"][key];
+      const targetText = translations[lang][key];
+
+      if (lang === "en") {
+        element.innerText = englishText;
+      } else {
+        element.innerText = `${englishText} (${targetText})`;
+      }
+    });
+  }
+
+  // Function to toggle Voice Widget on Mobile
+  function toggleMobileVoice() {
+    const widget = document.getElementById('voiceWidget');
+    const backdrop = document.querySelector('.voice-backdrop');
+    
+    // Toggle Classes
+    widget.classList.toggle('active');
+    backdrop.classList.toggle('active');
+  }
+</script>
+
+{% endblock %}
