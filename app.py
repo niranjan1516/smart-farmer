@@ -4,6 +4,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 import pickle
 import numpy as np
 import random # For generating OTP
+import os
 
 # Import our custom modules
 from config import Config
@@ -15,7 +16,20 @@ from utils import process_voice_command
 # SETUP
 # ---------------------------------------------------
 app = Flask(__name__)
-app.config.from_object(Config)
+
+# --- DATABASE CONFIGURATION (Render Compatible) ---
+# 1. Check if we are on the Cloud (Render provides 'DATABASE_URL')
+db_url = os.environ.get('DATABASE_URL')
+
+# 2. Fix the URL prefix (Render uses 'postgres://', but SQLAlchemy needs 'postgresql://')
+if db_url and db_url.startswith("postgres://"):
+    db_url = db_url.replace("postgres://", "postgresql://", 1)
+
+# 3. Use Cloud DB if found, otherwise use Local SQLite
+app.config['SQLALCHEMY_DATABASE_URI'] = db_url or 'sqlite:///smartfarmer.db'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev_secret_key')
+# --------------------------------------------------
 
 db.init_app(app)
 login_manager = LoginManager()
