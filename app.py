@@ -237,8 +237,8 @@ def predict():
     
     # --- ADDED FEATURES ---
     # 6. Generate Voice Report & Roadmap
-    # audio_filename = generate_voice_report(final_crop, weather)
-    # farming_plan = get_crop_plan(final_crop)
+    #  audio_filename = generate_voice_report(final_crop, weather)
+    #  farming_plan = get_crop_plan(final_crop)
 
     # 7. Show Result
     return render_template('result.html', 

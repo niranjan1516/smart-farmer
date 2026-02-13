@@ -1,267 +1,404 @@
-{% extends "base.html" %}
-
-{% block content %}
+{% extends "base.html" %} {% block content %}
 
 <style>
-    /* Hero Gradient Card */
-    .hero-card {
-        background: linear-gradient(135deg, #198754 0%, #20c997 100%);
-        color: white;
-        border-radius: 20px;
-        box-shadow: 0 10px 20px rgba(25, 135, 84, 0.3);
-    }
-    
-    /* Weather Info Cards */
-    .weather-card {
-        background: white;
-        border-radius: 15px;
-        border: 1px solid #eee;
-        transition: transform 0.2s;
-        height: 100%; /* Ensure equal height */
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        padding: 20px;
-    }
-    .weather-card:hover {
-        transform: translateY(-5px);
-        border-color: #198754;
-        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
-    }
+  /* Hero Gradient Card */
+  .hero-card {
+    background: linear-gradient(135deg, #198754 0%, #20c997 100%);
+    color: white;
+    border-radius: 20px;
+    box-shadow: 0 10px 20px rgba(25, 135, 84, 0.3);
+  }
 
-    /* --- IMAGE FORMATTING FIX --- */
-    .crop-img-container {
-        width: 100%;
-        height: 250px; /* Fixed Height for all images */
-        overflow: hidden;
-        border-radius: 15px;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-        position: relative;
-    }
+  /* Weather Info Cards */
+  .weather-card {
+    background: white;
+    border-radius: 15px;
+    border: 1px solid #eee;
+    transition: transform 0.2s;
+    height: 100%; /* Ensure equal height */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+  }
+  .weather-card:hover {
+    transform: translateY(-5px);
+    border-color: #198754;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+  }
 
-    .crop-img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover; /* Prevents stretching */
-        transition: transform 0.5s ease;
-    }
+  /* --- IMAGE FORMATTING FIX --- */
+  .crop-img-container {
+    width: 100%;
+    height: 250px; /* Fixed Height for all images */
+    overflow: hidden;
+    border-radius: 15px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    position: relative;
+  }
 
-    .crop-img-container:hover .crop-img {
-        transform: scale(1.1); /* Zoom effect on hover */
-    }
+  .crop-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Prevents stretching */
+    transition: transform 0.5s ease;
+  }
 
-    .img-badge {
-        position: absolute;
-        bottom: 10px;
-        left: 10px;
-        background: rgba(0, 0, 0, 0.7);
-        color: white;
-        padding: 5px 12px;
-        border-radius: 20px;
-        font-size: 0.8rem;
-        backdrop-filter: blur(4px);
-    }
+  .crop-img-container:hover .crop-img {
+    transform: scale(1.1); /* Zoom effect on hover */
+  }
 
-    /* Roadmap Timeline */
-    .timeline-step {
-        position: relative;
-        padding-left: 30px;
-        margin-bottom: 25px;
-        border-left: 3px solid #e9ecef;
-    }
-    .timeline-step::before {
-        content: '';
-        position: absolute;
-        left: -9px;
-        top: 0;
-        width: 15px;
-        height: 15px;
-        background: #ffc107;
-        border-radius: 50%;
-        border: 3px solid white;
-        box-shadow: 0 0 0 1px #ffc107;
-    }
+  .img-badge {
+    position: absolute;
+    bottom: 10px;
+    left: 10px;
+    background: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    backdrop-filter: blur(4px);
+  }
+
+  /* Roadmap Timeline */
+  .timeline-step {
+    position: relative;
+    padding-left: 30px;
+    margin-bottom: 25px;
+    border-left: 3px solid #e9ecef;
+  }
+  .timeline-step::before {
+    content: "";
+    position: absolute;
+    left: -9px;
+    top: 0;
+    width: 15px;
+    height: 15px;
+    background: #ffc107;
+    border-radius: 50%;
+    border: 3px solid white;
+    box-shadow: 0 0 0 1px #ffc107;
+  }
 </style>
 
 <div class="container mt-4 mb-5">
-    <div class="row justify-content-center">
-        <div class="col-lg-10">
+  <div class="row justify-content-center">
+    <div class="col-lg-10">
+      <div
+        class="hero-card p-4 p-md-5 text-center mb-5 position-relative overflow-hidden"
+      >
+        <h5
+          class="text-white-50 text-uppercase fw-bold ls-2"
+          data-i18n="lbl_rec"
+        >
+          Recommended Crop
+        </h5>
 
-            <div class="hero-card p-4 p-md-5 text-center mb-5 position-relative overflow-hidden">
-                <h5 class="text-white-50 text-uppercase fw-bold ls-2" data-i18n="lbl_rec">Recommended Crop</h5>
-                
-                <h1 class="display-3 fw-bold mt-2 mb-3" id="cropNameDisplay" data-raw-name="{{ crop }}">{{ crop }}</h1>
-                
-                <div class="badge bg-white text-success fs-6 px-4 py-2 rounded-pill shadow-sm">
-                    <i class="fas fa-check-circle me-1"></i> <span data-i18n="lbl_match">Best Match for your Farm</span>
-                </div>
+        <h1
+          class="display-3 fw-bold mt-2 mb-3"
+          id="cropNameDisplay"
+          data-raw-name="{{ crop }}"
+        >
+          {{ crop }}
+        </h1>
 
-                {% if audio_file %}
-                <div class="mt-4 d-flex justify-content-center">
-                    <div class="bg-white bg-opacity-25 p-2 rounded-pill d-flex align-items-center" style="backdrop-filter: blur(5px);">
-                        <span class="text-white small ms-3 me-2 fw-bold" data-i18n="lbl_listen">Listen:</span>
-                        <audio controls class="rounded-pill" style="height: 35px; width: 250px;">
-                            <source src="{{ url_for('static', filename='audio/' + audio_file) }}" type="audio/mpeg">
-                        </audio>
-                    </div>
-                </div>
-                {% endif %}
-            </div>
-
-            <div class="mb-5">
-                <div class="d-flex align-items-center mb-3">
-                    <h4 class="text-success fw-bold mb-0" data-i18n="lbl_gallery">Crop Visuals</h4>
-                    <div class="ms-auto border-bottom flex-grow-1 ms-3" style="border-color: #e9ecef;"></div>
-                </div>
-
-                <div class="row g-4">
-                    <div class="col-12 col-md-4">
-                        <div class="crop-img-container">
-                            <img src="https://image.pollinations.ai/prompt/photo%20of%20{{ crop }}%20farm%20field%20agriculture%20scenic?width=600&height=400&nologo=true" 
-                                 class="crop-img" alt="Farm View">
-                            <span class="img-badge"><i class="fas fa-tree me-1"></i> Farm View</span>
-                        </div>
-                    </div>
-
-                    <div class="col-12 col-md-4">
-                        <div class="crop-img-container">
-                            <img src="https://image.pollinations.ai/prompt/macro%20photo%20of%20{{ crop }}%20seeds%20grains%20pile?width=600&height=400&nologo=true" 
-                                 class="crop-img" alt="Seeds">
-                            <span class="img-badge"><i class="fas fa-seedling me-1"></i> Seeds</span>
-                        </div>
-                    </div>
-
-                    <div class="col-12 col-md-4">
-                        <div class="crop-img-container">
-                            <img src="https://image.pollinations.ai/prompt/farmer%20holding%20{{ crop }}%20harvest%20in%20hands%20close%20up?width=600&height=400&nologo=true" 
-                                 class="crop-img" alt="Harvest">
-                            <span class="img-badge"><i class="fas fa-hand-holding-heart me-1"></i> Harvest</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="row g-3 mb-5">
-                <div class="col-4">
-                    <div class="weather-card">
-                        <i class="fas fa-temperature-high fa-2x text-danger mb-2"></i>
-                        <h3 class="mb-0 fw-bold text-dark">{{ weather.temp }}°C</h3>
-                        <small class="text-muted text-uppercase fw-bold" style="font-size: 0.7rem;" data-i18n="lbl_temp">Temp</small>
-                    </div>
-                </div>
-                <div class="col-4">
-                    <div class="weather-card">
-                        <i class="fas fa-tint fa-2x text-primary mb-2"></i>
-                        <h3 class="mb-0 fw-bold text-dark">{{ weather.humidity }}%</h3>
-                        <small class="text-muted text-uppercase fw-bold" style="font-size: 0.7rem;" data-i18n="lbl_hum">Humidity</small>
-                    </div>
-                </div>
-                <div class="col-4">
-                    <div class="weather-card">
-                        <i class="fas fa-cloud-rain fa-2x text-info mb-2"></i>
-                        <h3 class="mb-0 fw-bold text-dark">{{ weather.rainfall }}<span class="fs-6">mm</span></h3>
-                        <small class="text-muted text-uppercase fw-bold" style="font-size: 0.7rem;" data-i18n="lbl_rain">Rainfall</small>
-                    </div>
-                </div>
-            </div>
-
-            <div class="card border-0 shadow rounded-4 overflow-hidden mb-5">
-                <div class="card-header bg-white border-bottom py-3 px-4">
-                    <h5 class="fw-bold text-dark mb-0">
-                        <i class="fas fa-clipboard-list text-warning me-2"></i> 
-                        <span data-i18n="lbl_plan">Cultivation Roadmap</span>
-                    </h5>
-                </div>
-                <div class="card-body px-4 pt-4 pb-2">
-                    <div class="timeline">
-                        {% for step in plan %}
-                        <div class="timeline-step">
-                            <h6 class="fw-bold text-success">Day {{ step.day }}: {{ step.task }}</h6>
-                            <p class="text-secondary mb-0 small">{{ step.detail }}</p>
-                        </div>
-                        {% endfor %}
-                    </div>
-                </div>
-            </div>
-
-            <div class="text-center pb-5">
-                <a href="{{ url_for('home') }}" class="btn btn-dark rounded-pill px-5 py-3 shadow-sm">
-                    <i class="fas fa-arrow-left me-2"></i> <span data-i18n="btn_back">Predict Again</span>
-                </a>
-            </div>
-
+        <div
+          class="badge bg-white text-success fs-6 px-4 py-2 rounded-pill shadow-sm"
+        >
+          <i class="fas fa-check-circle me-1"></i>
+          <span data-i18n="lbl_match">Best Match for your Farm</span>
         </div>
+
+        {% if audio_file %}
+        <div class="mt-4 d-flex justify-content-center">
+          <div
+            class="bg-white bg-opacity-25 p-2 rounded-pill d-flex align-items-center"
+            style="backdrop-filter: blur(5px)"
+          >
+            <span
+              class="text-white small ms-3 me-2 fw-bold"
+              data-i18n="lbl_listen"
+              >Listen:</span
+            >
+            <audio
+              controls
+              class="rounded-pill"
+              style="height: 35px; width: 250px"
+            >
+              <source
+                src="{{ url_for('static', filename='audio/' + audio_file) }}"
+                type="audio/mpeg"
+              />
+            </audio>
+          </div>
+        </div>
+        {% endif %}
+      </div>
+
+      <div class="row g-4">
+        <div class="col-12 col-md-4">
+          <div
+            class="crop-img-container"
+            id="container-farm"
+            data-crop="{{ crop }}"
+          >
+            <span class="img-badge"
+              ><i class="fas fa-tree me-1"></i> Farm View</span
+            >
+          </div>
+        </div>
+
+        <div class="col-12 col-md-4">
+          <div
+            class="crop-img-container"
+            id="container-seeds"
+            data-crop="{{ crop }}"
+          >
+            <span class="img-badge"
+              ><i class="fas fa-seedling me-1"></i> Seeds</span
+            >
+          </div>
+        </div>
+
+        <div class="col-12 col-md-4">
+          <div
+            class="crop-img-container"
+            id="container-harvest"
+            data-crop="{{ crop }}"
+          >
+            <span class="img-badge"
+              ><i class="fas fa-hand-holding-heart me-1"></i> Harvest</span
+            >
+          </div>
+        </div>
+      </div>
+
+      <script src="https://js.puter.com/v2/"></script>
+      <script>
+        // Ensure the script runs after the HTML is loaded
+        document.addEventListener("DOMContentLoaded", () => {
+          // 1. Grab the crop name from the first container's data attribute
+          // In your template, {{ crop }} will be replaced by something like "Wheat"
+          const firstContainer = document.querySelector(".crop-img-container");
+          const cropName = firstContainer
+            ? firstContainer.getAttribute("data-crop")
+            : "Crop";
+
+          // 2. Configuration for the three images
+          const imagesToGen = [
+            {
+              id: "container-farm",
+              prompt: `high quality scenic wide shot photo of a lush ${cropName} farm field, sunny day, agricultural landscape`,
+              alt: "Farm View",
+            },
+            {
+              id: "container-seeds",
+              prompt: `macro professional photography of a pile of ${cropName} seeds and grains, sharp focus`,
+              alt: "Seeds",
+            },
+            {
+              id: "container-harvest",
+              prompt: `close up of a farmer's weathered hands holding a fresh ${cropName} harvest, realistic photography`,
+              alt: "Harvest",
+            },
+          ];.
+
+          // 3. Loop and generate
+          imagesToGen.forEach((item) => {
+            const targetDiv = document.getElementById(item.id);
+
+            if (targetDiv) {
+              puter.ai
+                .txt2img(item.prompt)
+                .then((img) => {
+                  img.className = "crop-img"; // Apply your existing CSS class
+                  img.alt = item.alt;
+
+                  // Prepend ensures the image goes BEFORE the badge span
+                  targetDiv.prepend(img);
+                })
+                .catch((err) => console.error("Error generating image:", err));
+            }
+          });
+        });
+      </script>
+
+      <div class="row g-3 mb-5">
+        <div class="col-4">
+          <div class="weather-card">
+            <i class="fas fa-temperature-high fa-2x text-danger mb-2"></i>
+            <h3 class="mb-0 fw-bold text-dark">{{ weather.temp }}°C</h3>
+            <small
+              class="text-muted text-uppercase fw-bold"
+              style="font-size: 0.7rem"
+              data-i18n="lbl_temp"
+              >Temp</small
+            >
+          </div>
+        </div>
+        <div class="col-4">
+          <div class="weather-card">
+            <i class="fas fa-tint fa-2x text-primary mb-2"></i>
+            <h3 class="mb-0 fw-bold text-dark">{{ weather.humidity }}%</h3>
+            <small
+              class="text-muted text-uppercase fw-bold"
+              style="font-size: 0.7rem"
+              data-i18n="lbl_hum"
+              >Humidity</small
+            >
+          </div>
+        </div>
+        <div class="col-4">
+          <div class="weather-card">
+            <i class="fas fa-cloud-rain fa-2x text-info mb-2"></i>
+            <h3 class="mb-0 fw-bold text-dark">
+              {{ weather.rainfall }}<span class="fs-6">mm</span>
+            </h3>
+            <small
+              class="text-muted text-uppercase fw-bold"
+              style="font-size: 0.7rem"
+              data-i18n="lbl_rain"
+              >Rainfall</small
+            >
+          </div>
+        </div>
+      </div>
+
+      <div class="card border-0 shadow rounded-4 overflow-hidden mb-5">
+        <div class="card-header bg-white border-bottom py-3 px-4">
+          <h5 class="fw-bold text-dark mb-0">
+            <i class="fas fa-clipboard-list text-warning me-2"></i>
+            <span data-i18n="lbl_plan">Cultivation Roadmap</span>
+          </h5>
+        </div>
+        <div class="card-body px-4 pt-4 pb-2">
+          <div class="timeline">
+            {% for step in plan %}
+            <div class="timeline-step">
+              <h6 class="fw-bold text-success">
+                Day {{ step.day }}: {{ step.task }}
+              </h6>
+              <p class="text-secondary mb-0 small">{{ step.detail }}</p>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+
+      <div class="text-center pb-5">
+        <a
+          href="{{ url_for('home') }}"
+          class="btn btn-dark rounded-pill px-5 py-3 shadow-sm"
+        >
+          <i class="fas fa-arrow-left me-2"></i>
+          <span data-i18n="btn_back">Predict Again</span>
+        </a>
+      </div>
     </div>
+  </div>
 </div>
 
 <script>
-    // 1. CROP NAMES DICTIONARY
-    const cropTranslations = {
-        'rice': { hi: 'चावल', mr: 'तांदूळ' },
-        'maize': { hi: 'मक्का', mr: 'मका' },
-        'chickpea': { hi: 'चना', mr: 'हरभरा' },
-        'kidneybeans': { hi: 'राजमा', mr: 'घेवडा' },
-        'pigeonpeas': { hi: 'तूर', mr: 'तूर' },
-        'mothbeans': { hi: 'मोठ दाल', mr: 'मटकी' },
-        'mungbean': { hi: 'मूंग', mr: 'मूग' },
-        'blackgram': { hi: 'उड़द', mr: 'उडीद' },
-        'lentil': { hi: 'मसूर', mr: 'मसूर' },
-        'pomegranate': { hi: 'अनार', mr: 'डाळिंब' },
-        'banana': { hi: 'केला', mr: 'केळी' },
-        'mango': { hi: 'आम', mr: 'आंबा' },
-        'grapes': { hi: 'अंगूर', mr: 'द्राक्षे' },
-        'watermelon': { hi: 'तरबूज', mr: 'कलिंगड' },
-        'muskmelon': { hi: 'खरबूजा', mr: 'खरबूज' },
-        'apple': { hi: 'सेब', mr: 'सफरचंद' },
-        'orange': { hi: 'संतरा', mr: 'संत्री' },
-        'papaya': { hi: 'पपीता', mr: 'पपई' },
-        'coconut': { hi: 'नारियल', mr: 'नारळ' },
-        'cotton': { hi: 'कपास', mr: 'कापूस' },
-        'jute': { hi: 'जूट', mr: 'ताग' },
-        'coffee': { hi: 'कॉफी', mr: 'कॉफी' }
-    };
+  // 1. CROP NAMES DICTIONARY
+  const cropTranslations = {
+    rice: { hi: "चावल", mr: "तांदूळ" },
+    maize: { hi: "मक्का", mr: "मका" },
+    chickpea: { hi: "चना", mr: "हरभरा" },
+    kidneybeans: { hi: "राजमा", mr: "घेवडा" },
+    pigeonpeas: { hi: "तूर", mr: "तूर" },
+    mothbeans: { hi: "मोठ दाल", mr: "मटकी" },
+    mungbean: { hi: "मूंग", mr: "मूग" },
+    blackgram: { hi: "उड़द", mr: "उडीद" },
+    lentil: { hi: "मसूर", mr: "मसूर" },
+    pomegranate: { hi: "अनार", mr: "डाळिंब" },
+    banana: { hi: "केला", mr: "केळी" },
+    mango: { hi: "आम", mr: "आंबा" },
+    grapes: { hi: "अंगूर", mr: "द्राक्षे" },
+    watermelon: { hi: "तरबूज", mr: "कलिंगड" },
+    muskmelon: { hi: "खरबूजा", mr: "खरबूज" },
+    apple: { hi: "सेब", mr: "सफरचंद" },
+    orange: { hi: "संतरा", mr: "संत्री" },
+    papaya: { hi: "पपीता", mr: "पपई" },
+    coconut: { hi: "नारियल", mr: "नारळ" },
+    cotton: { hi: "कपास", mr: "कापूस" },
+    jute: { hi: "जूट", mr: "ताग" },
+    coffee: { hi: "कॉफी", mr: "कॉफी" },
+  };
 
-    // 2. STATIC LABELS
-    const pageTranslations = {
-        'en': { lbl_rec: 'Recommended Crop', lbl_match: 'Best Match for your Farm', lbl_listen: 'Listen to Report', lbl_gallery: 'Crop Visuals', lbl_temp: 'Temp', lbl_hum: 'Humidity', lbl_rain: 'Rainfall', lbl_plan: 'Cultivation Roadmap', btn_back: 'Predict Again' },
-        'hi': { lbl_rec: 'अनुशंसित फसल', lbl_match: 'आपके खेत के लिए सर्वोत्तम', lbl_listen: 'रिपोर्ट सुनें', lbl_gallery: 'फसल की तस्वीरें', lbl_temp: 'तापमान', lbl_hum: 'नमी', lbl_rain: 'बारिश', lbl_plan: 'खेती की योजना', btn_back: 'फिर से देखें' },
-        'mr': { lbl_rec: 'शिफारस केलेले पीक', lbl_match: 'तुमच्या शेतासाठी सर्वोत्तम', lbl_listen: 'अहवाल ऐका', lbl_gallery: 'पिकाची चित्रे', lbl_temp: 'तापमान', lbl_hum: 'ओलावा', lbl_rain: 'पाऊस', lbl_plan: 'शेतीचे नियोजन', btn_back: 'पुन्हा प्रयत्न करा' }
-    };
+  // 2. STATIC LABELS
+  const pageTranslations = {
+    en: {
+      lbl_rec: "Recommended Crop",
+      lbl_match: "Best Match for your Farm",
+      lbl_listen: "Listen to Report",
+      lbl_gallery: "Crop Visuals",
+      lbl_temp: "Temp",
+      lbl_hum: "Humidity",
+      lbl_rain: "Rainfall",
+      lbl_plan: "Cultivation Roadmap",
+      btn_back: "Predict Again",
+    },
+    hi: {
+      lbl_rec: "अनुशंसित फसल",
+      lbl_match: "आपके खेत के लिए सर्वोत्तम",
+      lbl_listen: "रिपोर्ट सुनें",
+      lbl_gallery: "फसल की तस्वीरें",
+      lbl_temp: "तापमान",
+      lbl_hum: "नमी",
+      lbl_rain: "बारिश",
+      lbl_plan: "खेती की योजना",
+      btn_back: "फिर से देखें",
+    },
+    mr: {
+      lbl_rec: "शिफारस केलेले पीक",
+      lbl_match: "तुमच्या शेतासाठी सर्वोत्तम",
+      lbl_listen: "अहवाल ऐका",
+      lbl_gallery: "पिकाची चित्रे",
+      lbl_temp: "तापमान",
+      lbl_hum: "ओलावा",
+      lbl_rain: "पाऊस",
+      lbl_plan: "शेतीचे नियोजन",
+      btn_back: "पुन्हा प्रयत्न करा",
+    },
+  };
 
-    // 3. MAIN LOGIC
-    document.addEventListener('DOMContentLoaded', function() {
-        // Read Language from Browser Memory
-        const lang = localStorage.getItem('appLang') || 'en';
-        applyTranslations(lang);
+  // 3. MAIN LOGIC
+  document.addEventListener("DOMContentLoaded", function () {
+    // Read Language from Browser Memory
+    const lang = localStorage.getItem("appLang") || "en";
+    applyTranslations(lang);
+  });
+
+  function applyTranslations(lang) {
+    // A. Translate Static Labels
+    document.querySelectorAll("[data-i18n]").forEach((element) => {
+      const key = element.getAttribute("data-i18n");
+      const englishText = pageTranslations["en"][key];
+      const nativeText = pageTranslations[lang][key];
+      if (lang === "en") {
+        element.innerText = englishText;
+      } else {
+        element.innerText = `${englishText} (${nativeText})`;
+      }
     });
 
-    function applyTranslations(lang) {
-        // A. Translate Static Labels
-        document.querySelectorAll('[data-i18n]').forEach(element => {
-            const key = element.getAttribute('data-i18n');
-            const englishText = pageTranslations['en'][key];
-            const nativeText = pageTranslations[lang][key];
-            if (lang === 'en') { element.innerText = englishText; } 
-            else { element.innerText = `${englishText} (${nativeText})`; }
-        });
+    // B. Translate Crop Name
+    const cropDisplay = document.getElementById("cropNameDisplay");
+    const rawName = cropDisplay.getAttribute("data-raw-name");
 
-        // B. Translate Crop Name
-        const cropDisplay = document.getElementById('cropNameDisplay');
-        const rawName = cropDisplay.getAttribute('data-raw-name'); 
-        
-        if (lang === 'en') {
-            cropDisplay.innerText = rawName;
-        } else {
-            const lowerName = rawName.toLowerCase();
-            if (cropTranslations[lowerName] && cropTranslations[lowerName][lang]) {
-                const nativeName = cropTranslations[lowerName][lang];
-                cropDisplay.innerText = `${rawName} (${nativeName})`;
-            } else {
-                cropDisplay.innerText = rawName;
-            }
-        }
+    if (lang === "en") {
+      cropDisplay.innerText = rawName;
+    } else {
+      const lowerName = rawName.toLowerCase();
+      if (cropTranslations[lowerName] && cropTranslations[lowerName][lang]) {
+        const nativeName = cropTranslations[lowerName][lang];
+        cropDisplay.innerText = `${rawName} (${nativeName})`;
+      } else {
+        cropDisplay.innerText = rawName;
+      }
     }
+  }
 </script>
 
 {% endblock %}
