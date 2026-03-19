@@ -1,1 +1,1 @@
-This file contains output screens
+Smart farmer - Crop prediction web Application 
